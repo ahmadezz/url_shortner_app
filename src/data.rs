@@ -4,7 +4,7 @@ use tracing::{debug, error};
 
 use crate::model::URLDBEntry;
 
-/// Finds id from urls tbale for the given url input
+/// Finds short url id from urls table for the given long url input
 pub async fn find_id(db: &DatabaseConnection, url: &str) -> Option<String> {
     match entity::urls::Entity::find()
         .filter(entity::urls::Column::Url.eq(url))
@@ -24,7 +24,7 @@ pub async fn find_id(db: &DatabaseConnection, url: &str) -> Option<String> {
     }
 }
 
-/// Finds url from urls table for the given id input
+/// Finds long url from urls table for the given short url id input
 pub async fn find_url(db: &DatabaseConnection, id: &str) -> Option<String> {
     match entity::urls::Entity::find()
         .filter(entity::urls::Column::Id.eq(id))
@@ -44,7 +44,7 @@ pub async fn find_url(db: &DatabaseConnection, id: &str) -> Option<String> {
     }
 }
 
-/// Inserts new urls entry into the database
+/// Inserts new short url id and its equivalent long url into urls table in the database
 pub async fn insert_urls_entry(db: &DatabaseConnection, entry: URLDBEntry) -> Result<()> {
     // create active model with data mapping
     let url_entry = entity::urls::ActiveModel {
@@ -59,7 +59,7 @@ pub async fn insert_urls_entry(db: &DatabaseConnection, entry: URLDBEntry) -> Re
     Ok(())
 }
 
-/// Inserts new stats entry into the database
+/// Inserts new short url id and sets visits count to 0 into stats table in the database
 pub async fn insert_stats_entry(db: &DatabaseConnection, entry: URLDBEntry) -> Result<()> {
     // create active model with data mapping
     let stats_entry = entity::stats::ActiveModel {
