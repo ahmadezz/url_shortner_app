@@ -50,14 +50,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db_conn = Database::connect(db_url).await?;
 
     // apply all pending migrations
-    if Migrator::up(&db_conn, None).await.is_err(){
+    if Migrator::up(&db_conn, None).await.is_err() {
         panic!("Failed to apply migrations")
-    };
-
-    // check if all the migrations have been applied
-    if !Migrator::get_pending_migrations(&db_conn).await?.is_empty() {
-        Migrator::status(&db_conn).await?;
-        panic!("Found not yet applied migrations.");
     };
 
     // get base url for the app
