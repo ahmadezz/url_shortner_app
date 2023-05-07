@@ -42,7 +42,7 @@ Replace the value of ```"long_url"``` to any other valid website to generate the
 
 ## How to send a redirect request example
 
-Extract the id from the returned response of ```/getShortUrl``` request. Example:  From```<http://tier.app/UL6F9R>``` take ```UL6F9R>```
+Extract the id from the returned response of ```/getShortUrl``` request. Example:  From```<http://tier.app/UL6F9R>``` take ```UL6F9R```
 
 Then go to the browser and surf ```<http://0.0.0.0:8080/UL6F9R>``` and the request will be redirected to the long url stored in the db if found and
 
