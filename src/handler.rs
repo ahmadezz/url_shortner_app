@@ -22,7 +22,7 @@ pub async fn handle_get_short_url(
     State(state): State<AppState>,
     Json(url): Json<Url>,
 ) -> impl IntoResponse {
-    // parse input into valid url entry
+    // parse input into valid long url entry
     let parsed_url = match url_parser::parse(&url.long_url) {
         Ok(url) => url,
         Err(err) => {
@@ -34,7 +34,7 @@ pub async fn handle_get_short_url(
         }
     };
 
-    // check for early return if url already exists
+    // check for early return if long url already exists in urls table
     if let Some(id) = find_id(&state.db, parsed_url.as_str()).await {
         return Ok((StatusCode::OK, format!("{}{}", state.base_url, id)));
     };
@@ -42,13 +42,13 @@ pub async fn handle_get_short_url(
     let id = create_valid_id(&state.db).await;
     let entry = URLDBEntry::from((id.as_str(), parsed_url.as_str()));
 
-    // insert url and id into urls table
+    // insert long url and short url id into urls table
     if let Err(err) = insert_urls_entry(&state.db, entry.clone()).await {
         error!("Failed to insert urls entry due to:{}", err);
         return Err((StatusCode::INTERNAL_SERVER_ERROR, err.to_string()));
     };
 
-    // insert id into stats table
+    // insert short url id into stats table
     if let Err(err) = insert_stats_entry(&state.db, entry).await {
         error!("Failed to insert stats entry due to:{}", err);
         return Err((StatusCode::INTERNAL_SERVER_ERROR, err.to_string()));
@@ -63,7 +63,7 @@ pub async fn handle_url_redirect(
     State(state): State<AppState>,
     Path(id): Path<String>,
 ) -> impl IntoResponse {
-    // get long url from db
+    // get long url from urls table in the database
     let url = match find_url(&state.db, &id).await {
         Some(url) => url,
         None => {
@@ -72,7 +72,7 @@ pub async fn handle_url_redirect(
         }
     };
 
-    // increment visits_count and redirect to long url
+    // increment visits_count  in stats table and redirect to long url
     match increment_visits_count(&state.db, &id).await {
         Ok(_) => Ok(Redirect::to(&url)),
         Err(err) => {
