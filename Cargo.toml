@@ -1,0 +1,25 @@
+[package]
+name = "url_shortner_app"
+version = "0.1.0"
+edition = "2021"
+author = "Ahmed Eletreby"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
+members = [".", "entity", "migration"]
+
+[dependencies]
+anyhow = "1.0.71"
+async-recursion = "1.0.4"
+axum = "0.6.18"
+axum-macros = "0.3.7"
+entity = { path = "entity" }
+migration = { path = "migration"}
+nanoid = "0.4.0"
+opentelemetry = { version = "0.19", features = ["trace", "rt-tokio"] }
+rand = "0.8.5"
+sea-orm = "0.11.3"
+serde = { version = "1.0.162", features = ["derive"] }
+tokio = { version = "1.28.0", features = ["full"] }
+tracing = "0.1.37"
+url = "2.3.1"
