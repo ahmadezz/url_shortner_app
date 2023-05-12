@@ -85,8 +85,8 @@ pub async fn handle_url_redirect(
 /// Generates valid unique id string
 #[async_recursion]
 pub async fn create_valid_id(db: &DatabaseConnection) -> String {
-    // generate random length between 1 and 10
-    let random_length: usize = rand::thread_rng().gen_range(1..11);
+    // generate random length between 1 and 11
+    let random_length: usize = rand::thread_rng().gen_range(1..12);
     // create a unique id entry with the randomly generated length
     let id = nanoid::nanoid!(random_length, &nanoid::alphabet::SAFE);
     // check for ids collision
