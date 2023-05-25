@@ -44,10 +44,28 @@ async fn shutdown_signal() {
 #[tokio::main]
 /// Entrypoint of the service
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // create routes
+    let app = create_router();
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    axum::Server::bind(&addr)
+        .serve(app.await.into_make_service())
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+        .unwrap();
+    Ok(())
+}
+
+/// Creates app routes with the app state database connection and base_url dependencies
+/// and ensures there are no pending db migrations
+async fn create_router() -> Router {
     // get connection to specified postgres database
     let db_url =
         env::var("DATABASE_URL").expect("DATABASE_URL is not set in environment variables");
-    let db_conn = Database::connect(db_url).await?;
+    let db_conn = match Database::connect(db_url).await {
+        Ok(conn) => conn,
+        Err(err) => panic!("Failed to connect to the database due to:{err}"),
+    };
 
     // apply all pending migrations
     if Migrator::up(&db_conn, None).await.is_err() {
@@ -62,17 +80,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         db: db_conn,
         base_url,
     };
-    // create routes
-    let app = Router::new()
+
+    Router::new()
         .route("/getShortUrl", post(handle_get_short_url))
         .route("/:id", get(handle_url_redirect))
-        .with_state(state);
-
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .with_graceful_shutdown(shutdown_signal())
-        .await
-        .unwrap();
-    Ok(())
+        .with_state(state)
 }
